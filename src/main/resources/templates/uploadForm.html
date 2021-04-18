@@ -1,0 +1,38 @@
+<html xmlns:th="https://www.thymeleaf.org">
+<body>
+
+
+<div>
+    <form method="POST" enctype="multipart/form-data" action="/upload">
+        <table>
+            <tr>
+                <td>File to upload:</td><td><input type="file" name="file" /></td>
+            </tr>
+            <tr>
+                <td>Note Name</td><td><input type="text" name="noteName"></td>
+            </tr>
+
+                <td>
+                    Choose note format
+                </td>
+                <td>
+                    <select name="format">
+                        <option value="text">text</option>
+                        <option value="video">video</option>
+                        <option value="picture">picture</option>
+                        <option value="ppt">ppt</option>
+                    </select>
+                </td>
+
+            <tr>
+                <td></td><td><input type="submit" value="Upload" /></td>
+            </tr>
+        </table>
+    </form>
+</div>
+
+<div>
+</div>
+
+</body>
+</html>

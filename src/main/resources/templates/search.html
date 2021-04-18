@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form method="get" action="/search">
+        <input type="text" name="keyword"/>
+        <input type="checkbox" id="diffCase" name="diffCase" th:checked="${diffCase}">
+        <label for="diffCase">Diff Case</label>
+
+        <input type="submit" />
+    </form>
+
+    <ul >
+        <li th:each="note:${notes}" th:text="${note.getNoteName()}"></li>
+    </ul>
+    <a href="/"><button>回到首頁</button></a>
+</body>
+</html>
