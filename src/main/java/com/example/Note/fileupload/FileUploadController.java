@@ -1,13 +1,13 @@
 package com.example.Note.fileupload;
 import com.example.Note.note.Note;
 import com.example.Note.fileupload.storage.StorageService;
+import com.example.Note.note.NoteRepository;
+import com.example.Note.note.SameNoteNameFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,19 +15,24 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 
 @RestController
 public class FileUploadController {
 
     private final StorageService storageService;
+    @Autowired
+    private final NoteRepository res;
 
     @Autowired
-    public FileUploadController(StorageService storageService) {
+    public FileUploadController(StorageService storageService, NoteRepository res) {
         this.storageService = storageService;
 
+        this.res = res;
     }
+
+
+
 
     @GetMapping("/files/{noteId:.+}")
     public ResponseEntity<Resource> serveFile(@PathVariable String noteId) throws Exception {
@@ -51,20 +56,29 @@ public class FileUploadController {
     public Note  handleFileUpload(@RequestParam("file") MultipartFile file,
                                    @RequestParam("noteName") String noteName,
                                    @RequestParam("format") String format,
-                                   RedirectAttributes redirectAttributes) throws IOException {
-        Path storePath = storageService.store(file);
-        
+                                   RedirectAttributes redirectAttributes) throws IOException,SameNoteNameFoundException {
+
+
+        if(!res.findByName(noteName).isEmpty())
+        {
+            throw new SameNoteNameFoundException();
+        }
+
+        Path storePath = storageService.store(file,String.valueOf(System.currentTimeMillis())+file.getOriginalFilename().substring(file.getOriginalFilename().indexOf(".")) );
         Note newNote = new Note();
         newNote.setNoteName(noteName);
-        newNote.setClassName("uncategorized");
+        newNote.setCategoryName("uncategorized");
         newNote.setFormat(format);
         newNote.setLocation(storePath.toAbsolutePath().toString());
 
         final String uri = "http://localhost:8080/notes";
 
+        Note uploadedNote=null;
+
         RestTemplate restTemplate = new RestTemplate();
         HttpEntity<Note> request = new HttpEntity<>(newNote);
-        Note uploadedNote = restTemplate.postForObject( uri, request, Note.class);
+        uploadedNote = restTemplate.postForObject( uri, request, Note.class);
+
 
         return uploadedNote;
     }

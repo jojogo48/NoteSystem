@@ -11,15 +11,13 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name="notename")
-    private String noteName;
+    @Column(name="note_name")
+    private String note_name;
 
     private String format;
 
-
-
-    @Column(name="classname")
-    private String className;
+    @Column(name="category_name")
+    private String category_name;
 
     private String location;
 
@@ -31,20 +29,20 @@ public class Note {
         this.id = id;
     }
 
-    public String getClassName() {
-        return className;
+    public String getCategoryName() {
+        return category_name;
     }
 
-    public void setClassName(String className) {
-        this.className = className;
+    public void setCategoryName(String category) {
+        this.category_name = category;
     }
 
     public String getNoteName() {
-        return noteName;
+        return note_name;
     }
 
     public void setNoteName(String name) {
-        this.noteName = name;
+        this.note_name = name;
     }
 
     public String getFormat() {

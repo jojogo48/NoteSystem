@@ -29,10 +29,10 @@ public class FileSystemStorageService implements StorageService{
 
 
     @Override
-    public Path store(MultipartFile file) throws IOException {
+    public Path store(MultipartFile file,String fileName) throws IOException {
         try {
             Path destinationFile = this.rootLocation.resolve(
-                    Paths.get(file.getOriginalFilename()))
+                    Paths.get(fileName))
                     .normalize().toAbsolutePath();
 
             try (InputStream inputStream = file.getInputStream()) {
