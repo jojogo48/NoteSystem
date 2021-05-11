@@ -67,7 +67,7 @@ public class FileUploadController {
         Path storePath = storageService.store(file,String.valueOf(System.currentTimeMillis())+file.getOriginalFilename().substring(file.getOriginalFilename().indexOf(".")) );
         Note newNote = new Note();
         newNote.setNoteName(noteName);
-        newNote.setCategoryName("uncategorized");
+        newNote.setCategoryName("未分類");
         newNote.setFormat(format);
         newNote.setLocation(storePath.toAbsolutePath().toString());
 
