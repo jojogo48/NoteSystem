@@ -1,4 +1,4 @@
-package com.example.Note.fileupload.storage;
+package com.example.Note.property;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

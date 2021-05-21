@@ -1,4 +1,4 @@
-package com.example.Note.fileupload.storage;
+package com.example.Note.service;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 

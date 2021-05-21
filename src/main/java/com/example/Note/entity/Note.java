@@ -1,4 +1,4 @@
-package com.example.Note.note;
+package com.example.Note.entity;
 
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 
@@ -11,15 +11,31 @@ public class Note {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name="note_name")
     private String note_name;
 
     private String format;
 
-    @Column(name="category_name")
-    private String category_name;
+    @Column(name="category_id")
+    private Long category_id;
+
+    @Column(name="uid")
+    private Long uid;
+
 
     private String location;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    private String 	description;
+
 
     public Long getId() {
         return id;
@@ -29,13 +45,7 @@ public class Note {
         this.id = id;
     }
 
-    public String getCategoryName() {
-        return category_name;
-    }
 
-    public void setCategoryName(String category) {
-        this.category_name = category;
-    }
 
     public String getNoteName() {
         return note_name;
@@ -60,5 +70,21 @@ public class Note {
 
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public Long getCategory_id() {
+        return category_id;
+    }
+
+    public void setCategory_id(Long category_id) {
+        this.category_id = category_id;
+    }
+
+    public Long getUid() {
+        return uid;
+    }
+
+    public void setUid(Long uid) {
+        this.uid = uid;
     }
 }

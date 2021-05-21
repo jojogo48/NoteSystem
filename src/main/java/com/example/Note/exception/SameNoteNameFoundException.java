@@ -1,4 +1,4 @@
-package com.example.Note.note;
+package com.example.Note.exception;
 
 public class SameNoteNameFoundException extends RuntimeException {
     public SameNoteNameFoundException() {
