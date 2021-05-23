@@ -28,4 +28,6 @@ public class AuthenticationController {
         map.put("successful", auService.checkToken(tmp.get("token")));
         return map;
     };
+
+
 }

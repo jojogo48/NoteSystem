@@ -59,30 +59,46 @@ public class NoteController {
     }
 
     @PostMapping("/notes/name/{name}")
-    List<Note> searchName(@PathVariable(value="name") String name, @RequestBody Map<String,String> tmp)
+    List<Map<String,Object>> searchName(@PathVariable(value="name") String name, @RequestBody Map<String,String> tmp)
     {
 
         return  res.findByNameAndUid(name,auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/binaryname/{name}")
-    List<Note> searchBinaryName(@PathVariable(value="name") String name, @RequestBody Map<String,String> tmp)
+    List<Map<String,Object>> searchBinaryName(@PathVariable(value="name") String name, @RequestBody Map<String,String> tmp)
     {
 
         return  res.findByBinaryNameAndUid(name,auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/name/{name}/{category}/{format}")
-    List<Note> search(@PathVariable(value="name") String name,@PathVariable(value="category") String category,@PathVariable(value="format") String format, @RequestBody Map<String,String> tmp)
+    List<Map<String,Object>> search(@PathVariable(value="name") String name,@PathVariable(value="category") String category,@PathVariable(value="format") String format, @RequestBody Map<String,String> tmp)
     {
-
+        if(category.equals("all") && !format.equals("all"))
+        {
+            return  res.findByNameAndFormatAndUid(name,format,auService.getUid(tmp.get("token")));
+        }else if(!category.equals("all") && format.equals("all"))
+        {
+            return  res.findByNameAndCategoryAndUid(name,category,auService.getUid(tmp.get("token")));
+        }else if(category.equals("all") && format.equals("all")){
+            return  res.findByNameAndUid(name,auService.getUid(tmp.get("token")));
+        }
         return  res.findByNameAndCategoryAndFormatAndUid(category,name,format,auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/binaryname/{name}/{category}/{format}")
-    List<Note> searchBinary(@PathVariable(value="name") String name,@PathVariable(value="category") String category,@PathVariable(value="format") String format, @RequestBody Map<String,String> tmp)
+    List<Map<String,Object>> searchBinary(@PathVariable(value="name") String name,@PathVariable(value="category") String category,@PathVariable(value="format") String format, @RequestBody Map<String,String> tmp)
     {
-
+        if(category.equals("all") && !format.equals("all"))
+        {
+            return  res.findByBinaryNameAndFormatAndUid(name,format,auService.getUid(tmp.get("token")));
+        }else if(!category.equals("all") && format.equals("all"))
+        {
+            return  res.findByBinaryNameAndCategoryAndUid(name,category,auService.getUid(tmp.get("token")));
+        }else if(category.equals("all") && format.equals("all")){
+            return  res.findByBinaryNameAndUid(name,auService.getUid(tmp.get("token")));
+        }
         return  res.findByBinaryNameAndCategoryAndFormatAndUid(category,name,format,auService.getUid(tmp.get("token")));
     }
 
@@ -93,11 +109,11 @@ public class NoteController {
 
         Map<String,List<Note>> map = new HashMap<>();
         List<Category> noteCategory = resCat.findByUid(auService.getUid(tmp.get("token")));
-
         for(int i=0;i<noteCategory.size();i++)
         {
             map.put(noteCategory.get(i).getCategoryName(),res.findByCategoryAndUid(noteCategory.get(i).getCategoryName(),auService.getUid(tmp.get("token"))));
         }
+
         return map;
     }
 
