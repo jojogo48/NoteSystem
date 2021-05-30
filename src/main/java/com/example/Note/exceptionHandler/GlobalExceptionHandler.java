@@ -1,6 +1,7 @@
 package com.example.Note.exceptionHandler;
 import com.example.Note.exception.NoAccessToFileException;
 import com.example.Note.exception.NotLoginException;
+import com.example.Note.exception.NoteNotFoundException;
 import com.example.Note.exception.SameNoteNameFoundException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
@@ -38,6 +39,16 @@ public class GlobalExceptionHandler {
         map.put("error",ex.getMessage());
         return map;
     }
+
+    @ResponseBody
+    @ExceptionHandler(NoteNotFoundException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    Map<String,String> NoteNotFoundExceptionHandler(Exception ex) {
+        Map<String,String> map = new HashMap<>();
+        map.put("error",ex.getMessage());
+        return map;
+    }
+
     @ResponseBody
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -46,6 +57,8 @@ public class GlobalExceptionHandler {
         map.put("error",ex.getMessage());
         return map;
     }
+
+
 }
 
 

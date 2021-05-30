@@ -3,6 +3,7 @@ package com.example.Note.service;
 import com.example.Note.component.Constant;
 import com.example.Note.component.JwtTokenUtil;
 import com.example.Note.entity.User;
+import com.example.Note.exception.NoAccessToFileException;
 import com.example.Note.repository.CategoryRepository;
 import com.example.Note.repository.NoteRepository;
 import com.example.Note.repository.UserRepository;
@@ -39,17 +40,6 @@ public class AuthenticationService {
         map.put("token",util.createJWT(Constant.JWT_ID, "JoJo", findUser.getId().toString(), Constant.JWT_TTL));
         return map;
     }
-    /*public boolean isLogin(String jwt)
-    {
-        JwtTokenUtil util = new JwtTokenUtil();
-        util.
-        if(session.getAttribute("uid") == null)
-        {
-            return false;
-        }else{
-            return true;
-        }
-    }*/
 
     public boolean checkToken(String jwt)
     {
@@ -79,7 +69,7 @@ public class AuthenticationService {
                 return true;
             }
         }
-        return false;
+        throw new NoAccessToFileException();
     }
 
 }

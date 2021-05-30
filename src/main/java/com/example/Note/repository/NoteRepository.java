@@ -51,5 +51,9 @@ public interface NoteRepository extends JpaRepository<Note, Long> {
     @Query(value="SELECT * FROM Notes n WHERE n.uid=:uid",nativeQuery = true)
     List<Map<String,Object>> findNoteByUid(@Param("uid")Long uid);
 
+    @Modifying
+    @Transactional
+    @Query(value="DELETE FROM Notes  WHERE id=:id AND uid=:uid",nativeQuery = true)
+    void deleteByIdAndUid(@Param("id") String id,@Param("uid") Long uid);
 
 }

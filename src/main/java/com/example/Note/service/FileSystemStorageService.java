@@ -1,5 +1,6 @@
 package com.example.Note.service;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -8,6 +9,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.stream.Stream;
 
+import com.example.Note.exception.FileNotExistException;
 import com.example.Note.property.StorageProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -82,6 +84,20 @@ public class FileSystemStorageService implements StorageService {
     @Override
     public void deleteAll() {
         FileSystemUtils.deleteRecursively(rootLocation.toFile());
+    }
+
+    @Override
+    public void deleteOnExit(String filename){
+        try
+        {
+            Path fileToDeletePath = Paths.get(filename);
+            Files.delete(fileToDeletePath);
+        }
+        catch(Exception e)
+        {
+            throw new FileNotExistException();
+        }
+
     }
 
     @Override

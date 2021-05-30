@@ -1,17 +1,15 @@
 package com.example.Note.controller;
 
-import com.example.Note.entity.Category;
-import com.example.Note.exception.NoAccessToFileException;
 import com.example.Note.repository.CategoryRepository;
 import com.example.Note.entity.Note;
 import com.example.Note.repository.NoteRepository;
 import com.example.Note.service.AuthenticationService;
-import io.jsonwebtoken.JwtException;
+import com.example.Note.service.NoteService;
+import com.example.Note.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpSession;
 import java.util.*;
 
 @RestController
@@ -20,130 +18,90 @@ public class NoteController {
     @Autowired
     private AuthenticationService auService;
     @Autowired
-    private final NoteRepository res;
+    private NoteService noteService;
+    @Autowired
+    private NoteRepository res;
     @Autowired
     private final CategoryRepository resCat;
+    @Autowired
+    private final StorageService strSer;
 
-
-    public NoteController(AuthenticationService auService, NoteRepository res, CategoryRepository resCat) {
+    public NoteController(AuthenticationService auService, NoteService noteService, NoteRepository res, CategoryRepository resCat, StorageService strSer) {
         this.auService = auService;
+        this.noteService = noteService;
         this.res = res;
         this.resCat = resCat;
+        this.strSer = strSer;
     }
 
 
 
     @PostMapping("/notes/{id}")
-    Optional<Note> one(@PathVariable Long id,@RequestBody Map<String,String> tmp) {
-        if(!auService.isNoteBelongToUser(id,auService.getUid(tmp.get("token")))){
-            throw new NoAccessToFileException();
-        }
-        return res.findById(id);
+    Note one(@PathVariable Long id,@RequestBody Map<String,String> tmp) throws Exception {
+        return noteService.getNoteByIdAndUid(id,auService.getUid(tmp.get("token")));
     }
 
-    /*@PostMapping("/notes")
-    Note newNote(@RequestBody Map<String,String> tmp) throws Exception
-    {
-        Note newNote = new Note();
-        newNote.setCategory_id(0L);
-        newNote.setUid(auService.getUid(tmp.get("token")));
-        newNote.setNoteName(tmp.get("noteName"));
-        newNote.setFormat(tmp.get("format"));
-        newNote.set
-        return res.save(newNote);
-    }*/
     @PostMapping("/notes")
     List<Map<String, Object>> all(@RequestBody Map<String,String> tmp)
     {
-        return res.findNoteByUid(auService.getUid(tmp.get("token")));
+        return noteService.getNotesByUid(auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/name/{name}")
     List<Map<String,Object>> searchName(@PathVariable(value="name") String name, @RequestBody Map<String,String> tmp)
     {
-
-        return  res.findByNameAndUid(name,auService.getUid(tmp.get("token")));
+        return noteService.getNotesByUid(auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/binaryname/{name}")
     List<Map<String,Object>> searchBinaryName(@PathVariable(value="name") String name, @RequestBody Map<String,String> tmp)
     {
-
-        return  res.findByBinaryNameAndUid(name,auService.getUid(tmp.get("token")));
+        return noteService.getNotesByBinaryName(name,auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/name/{name}/{category}/{format}")
     List<Map<String,Object>> search(@PathVariable(value="name") String name,@PathVariable(value="category") String category,@PathVariable(value="format") String format, @RequestBody Map<String,String> tmp)
     {
-        if(category.equals("all") && !format.equals("all"))
-        {
-            return  res.findByNameAndFormatAndUid(name,format,auService.getUid(tmp.get("token")));
-        }else if(!category.equals("all") && format.equals("all"))
-        {
-            return  res.findByNameAndCategoryAndUid(name,category,auService.getUid(tmp.get("token")));
-        }else if(category.equals("all") && format.equals("all")){
-            return  res.findByNameAndUid(name,auService.getUid(tmp.get("token")));
-        }
-        return  res.findByNameAndCategoryAndFormatAndUid(category,name,format,auService.getUid(tmp.get("token")));
+
+        return noteService.getNotesByNameAndCategoryAndFormatAndUid(name,category,format, auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/binaryname/{name}/{category}/{format}")
     List<Map<String,Object>> searchBinary(@PathVariable(value="name") String name,@PathVariable(value="category") String category,@PathVariable(value="format") String format, @RequestBody Map<String,String> tmp)
     {
-        if(category.equals("all") && !format.equals("all"))
-        {
-            return  res.findByBinaryNameAndFormatAndUid(name,format,auService.getUid(tmp.get("token")));
-        }else if(!category.equals("all") && format.equals("all"))
-        {
-            return  res.findByBinaryNameAndCategoryAndUid(name,category,auService.getUid(tmp.get("token")));
-        }else if(category.equals("all") && format.equals("all")){
-            return  res.findByBinaryNameAndUid(name,auService.getUid(tmp.get("token")));
-        }
-        return  res.findByBinaryNameAndCategoryAndFormatAndUid(category,name,format,auService.getUid(tmp.get("token")));
+        return noteService.getNotesByBinaryNameAndCategoryAndFormatAndUid(name,category,format, auService.getUid(tmp.get("token")));
     }
 
 
     @PostMapping("/notes/categories")
     Map<String,List<Note>> listAllNotesByCategoryName(@RequestBody Map<String,String> tmp)
     {
-
-        Map<String,List<Note>> map = new HashMap<>();
-        List<Category> noteCategory = resCat.findByUid(auService.getUid(tmp.get("token")));
-        for(int i=0;i<noteCategory.size();i++)
-        {
-            map.put(noteCategory.get(i).getCategoryName(),res.findByCategoryAndUid(noteCategory.get(i).getCategoryName(),auService.getUid(tmp.get("token"))));
-        }
-
-        return map;
+        return noteService.getNotesGroupedByCategoryName(auService.getUid(tmp.get("token")));
     }
 
     @PostMapping("/notes/change")
     Map<String,String> changeCategory(@RequestBody Map<String, Object> payload)
     {
-
         Map<String,String> message = new HashMap<>();
+        Long uid = auService.getUid((String) payload.get("token"));
         Long category =Long.parseLong((String)payload.get("category"));
         ArrayList<String> notes = (ArrayList<String>) payload.get("notes");
-        int cnt = 0;
-        for(int i=0;i<notes.size();i++)
-        {
-            int value = res.setNoteCategoryAndUid(notes.get(i),category,auService.getUid((String) payload.get("token")));
-            cnt += value;
-        }
-        if(cnt == notes.size())
-        {
-            message.put("message","successful!!");
-        }else{
-            message.put("error","Not all change successfully!!");
-        }
-        return message;
+        return noteService.setCategoryByCategoryIdAndNoteIdsAndUid(category,notes,uid);
+
     }
 
     @PostMapping("/notes/category/{categoryName}")
     List<Note> listAllGroupByCategoryName(@PathVariable(value="categoryName") String name,@RequestBody Map<String,String> tmp)
     {
-        return res.findByCategoryAndUid(name,auService.getUid(tmp.get("token")));
+        return noteService.getNotesByCategoryName(name,auService.getUid(tmp.get("token")));
     }
 
+    @PostMapping("/notes/delete/{id}")
+    void deleteNote(@PathVariable(value="id") String noteId,@RequestBody Map<String,String> tmp){
+
+        Note deleteNote = noteService.getNoteByIdAndUid(Long.parseLong(noteId),auService.getUid(tmp.get("token")));
+        strSer.deleteOnExit(deleteNote.getLocation());
+        noteService.deleteNoteByIdAndUid(Long.parseLong(noteId),auService.getUid(tmp.get("token")));
+    }
 
 }
